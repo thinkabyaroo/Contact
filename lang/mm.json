@@ -1,0 +1,15 @@
+{
+    "contact":"ကွန်းတန့်",
+    "select action": "ရွေးချယ်ရန်",
+    "share contact": "လွှဲရန်",
+    "delete contact": "ဖျက်ရန်",
+    "submit" : "အတည်ပြုရန်",
+    "contact share" : "ကွန်းတန့်ပို့ရန်",
+    "recipient email" :"လက်ခံသူစာလိပ်စာ",
+    "message" : "စာတို",
+    "close" : "ပိတ်ရန်",
+    "share" : "ပို့ပါ",
+    "cancel" : "ပယ်ဖျက်ပါ",
+    "accept": "လက်ခံသည်",
+    "reject": "ငြင်းပယ်"
+}
