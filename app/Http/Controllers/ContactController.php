@@ -8,6 +8,7 @@ use App\Models\Contact;
 use App\Models\ShareContact;
 use App\Models\User;
 use App\Notifications\ContactShareNoti;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,9 +22,10 @@ class ContactController extends Controller
      */
     public function index()
     {
-        $contacts = Contact::where("user_id",Auth::id())->paginate(7);
-//        return $contacts;
-        return view("contact.index",compact('contacts'));
+        $contacts=Contact::where("user_id",Auth::id())->when(\request('search'), function ($q, $key) {
+            $q->where('name','LIKE',"%$key%" );
+        })->latest('id')->paginate(7)->withQueryString();
+        return view('contact.index',compact('contacts'));
     }
 
     /**
@@ -33,7 +35,7 @@ class ContactController extends Controller
      */
     public function create()
     {
-        //
+        return view('contact.create');
     }
 
     /**
@@ -44,7 +46,23 @@ class ContactController extends Controller
      */
     public function store(StoreContactRequest $request)
     {
-        //
+        $request->validate([
+            "name" => "required|min:3|max:50",
+            "phone"=>"required",
+            "photo" => "nullable|file|mimes:jpeg,png|max:5000"
+        ]);
+        $contact = new Contact();
+        $contact->name = $request->name;
+        $contact->phone = $request->phone;
+        $contact->user_id = Auth::id();
+        if($request->hasFile('photo')){
+            $newName = "photo_".uniqid().".".$request->file('photo')->extension();
+            $request->file('photo')->storeAs("public/photo",$newName);
+            $contact->photo= $newName;
+        }
+
+        $contact->save();
+        return redirect()->route('contact.index');
     }
 
     /**
@@ -55,7 +73,7 @@ class ContactController extends Controller
      */
     public function show(Contact $contact)
     {
-        //
+        return view('contact.show',compact('contact'));
     }
 
     /**
@@ -64,9 +82,10 @@ class ContactController extends Controller
      * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Http\Response
      */
-    public function edit(Contact $contact)
+    public function edit($id)
     {
-        //
+        $contact=Contact::findOrFail($id);
+        return view('contact.edit',compact('contact'));
     }
 
     /**
@@ -78,7 +97,22 @@ class ContactController extends Controller
      */
     public function update(UpdateContactRequest $request, Contact $contact)
     {
-        //
+        $request->validate([
+            "name" => "required|min:3|max:50",
+            "phone"=>"required",
+            "photo" => "nullable|file|mimes:jpeg,png|max:5000"
+        ]);
+        $contact->name = $request->name;
+        $contact->phone = $request->phone;
+        $contact->user_id = Auth::id();
+        if($request->hasFile('photo')){
+            $newName = "photo_".uniqid().".".$request->file('photo')->extension();
+            $request->file('photo')->storeAs("public/photo",$newName);
+            $contact->photo= $newName;
+        }
+
+        $contact->update();
+        return redirect()->route('contact.index');
     }
 
     /**

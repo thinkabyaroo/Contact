@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("phone");
+            $table->string('photo')->nullable();
+            $table->enum('status',[0,1])->default(1);
             $table->foreignId("user_id")->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

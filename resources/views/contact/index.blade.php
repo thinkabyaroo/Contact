@@ -5,15 +5,39 @@
     <div class="row">
         <div class="col">
             <div class="">
+                <div class="card shadow mb-2 p-2">
+                    <div class="row justify-content-between ">
+                        <div class="col-2 ms-2 ">
+                            <div class="form-check">
+                                <input class="form-check-input" form="bulk_action" type="checkbox" id="checkAll">
+                                <label class="form-check-label"  for="">Select All</label>
+                            </div>
+                        </div>
+                        <div class="col-4  ">
+                            <form action="{{route('contact.index')}}" >
+                                <input type="text" name="search" placeholder="search" class="border-1 border-info form-control-sm me-1">
+                            </form>
+                        </div>
+
+                            <div class="col-2 justify-content-between">
+                                <a  href="{{route('contact.create')}}" class="btn btn-sm btn-primary">Create</a>
+                                <a  href="{{url('/trash')}}" class="btn btn-sm btn-danger">Trash</a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            <div class="">
                 <form action="{{ route('contact.bulkAction') }}" id="bulk_action" method="post">
                     @csrf
                 </form>
                 <ul class="list-group">
+
                     @forelse($contacts as $contact)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div class="">
                                 <div class="form-check">
                                     <input class="form-check-input" form="bulk_action" type="checkbox" name="contact_ids[]" value="{{ $contact->id }}" id="contact{{ $contact->id  }}">
+{{--                                    <img src="{{ asset("storage/photo/".$contact->photo) }}" class="user-img rounded-circle" alt="">--}}
                                     <label class="form-check-label" for="contact{{ $contact->id  }}">
                                         <div class="">
                                             <p class="fw-bold mb-0">
@@ -93,32 +117,43 @@
         </div>
     </div>
 </div>
-
-    @push("js")
-        <script>
-
-            let emailModal = document.querySelector("#emailModal");
-            let myEmailModal =new bootstrap.Modal(emailModal,{
-                backdrop:"static"
-            });
-
-            let contactBulkFunctionalitySelect = document.querySelector(`[name="functionality"]`);
-            contactBulkFunctionalitySelect.addEventListener("change",function (){
-                let selected = Number(this.value);
-                console.log(selected);
-
-                if(selected === 1){
-                    myEmailModal.show();
-                }
-            })
-
-            function cancelAction(){
-                contactBulkFunctionalitySelect.value = "";
-                myEmailModal.hide();
-            }
-        </script>
-    @endpush
-
 @endsection
 
 
+@push("js")
+    <script>
+
+        let emailModal = document.querySelector("#emailModal");
+        let myEmailModal =new bootstrap.Modal(emailModal,{
+            backdrop:"static"
+        });
+
+        let contactBulkFunctionalitySelect = document.querySelector(`[name="functionality"]`);
+        contactBulkFunctionalitySelect.addEventListener("change",function (){
+            let selected = Number(this.value);
+            console.log(selected);
+
+            if(selected === 1){
+                myEmailModal.show();
+            }
+        })
+
+        function cancelAction(){
+            contactBulkFunctionalitySelect.value = "";
+            myEmailModal.hide();
+        }
+    </script>
+{{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js">--}}
+{{--        $("#checkAll").click(function () {--}}
+{{--            $('input:checkbox').not(this).prop('checked', this.checked);--}}
+{{--        });--}}
+{{--    </script>--}}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+        $(function(e){
+            $("#checkAll").click(function (){
+                $(".form-check-input").prop('checked',$(this).prop('checked'));
+            });
+        });
+    </script>
+@endpush
