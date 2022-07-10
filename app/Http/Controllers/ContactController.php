@@ -121,10 +121,31 @@ class ContactController extends Controller
      * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Contact $contact)
-    {
-        //
+//    public function destroy(Contact $contact)
+//    {
+//        $contact->delete();
+//        return redirect()->back();
+//    }
+
+    public function delete($id){
+        $contact=Contact::findOrFail($id);
+        if (!is_null($contact)){
+            $contact->delete();
+        }
+        return redirect()->back();
     }
+    public function forceDelete($id){
+        $contact=Contact::withTrashed()->findOrFail($id);
+        $contact->forceDelete();
+        return redirect()->back();
+    }
+
+    public function restore($id){
+        $contact=Contact::withTrashed()->find($id);
+        $contact->restore();
+        return redirect()->back();
+    }
+
 
     public function bulkShare(Request $request){
 
@@ -145,12 +166,15 @@ class ContactController extends Controller
             $shareContact->save();
 //            return $shareContact;
             $user->notify(new ContactShareNoti($request->message,route('share-contact.show',$shareContact->id)));
-            $userId = $user->id;
-            return $request;
-            Contact::whereIn("id",$request->contact_ids)
-                ->update(["user_id" => $userId]);
+            return redirect()->back()->with('status',"Contact share Success to $user->name");
+            Contact::whereIn("id",$request->contact_ids)->update(["user_id" => $userId]);
+
         }elseif($request->functionality == 2){
-            Contact::destroy(join(',',$request->contact_ids));
+//            Contact::destroy(join(',',$request->contact_ids));
+            $contacts = Contact::whereIn('id', $request->contact_ids)->get();
+            foreach ($contacts as $contact) {
+                $contact->delete();
+            }
         }else{
             return  abort(403);
         }

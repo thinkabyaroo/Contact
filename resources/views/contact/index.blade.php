@@ -13,15 +13,15 @@
                                 <label class="form-check-label"  for="">Select All</label>
                             </div>
                         </div>
-                        <div class="col-4  ">
+                        <div class="col-6 d-flex align-items-center justify-content-center">
                             <form action="{{route('contact.index')}}" >
                                 <input type="text" name="search" placeholder="search" class="border-1 border-info form-control-sm me-1">
                             </form>
                         </div>
 
-                            <div class="col-2 justify-content-between">
-                                <a  href="{{route('contact.create')}}" class="btn btn-sm btn-primary">Create</a>
-                                <a  href="{{url('/trash')}}" class="btn btn-sm btn-danger">Trash</a>
+                            <div class="col-2 d-flex align-items-center justify-content-end">
+                                <a  href="{{route('contact.create')}}" class="btn btn-sm me-2 btn-outline-primary">Create</a>
+                                <a  href="{{url('/trash')}}" class="btn btn-sm me-2 btn-outline-danger">Trash</a>
                             </div>
                     </div>
                 </div>
@@ -30,13 +30,17 @@
                 <form action="{{ route('contact.bulkAction') }}" id="bulk_action" method="post">
                     @csrf
                 </form>
+                <form action="{{route("deleteAll")}}" id="deleteAll" method="post">
+                    @method("delete")
+                    @csrf
+                </form>
                 <ul class="list-group">
 
                     @forelse($contacts as $contact)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <div class="">
                                 <div class="form-check">
-                                    <input class="form-check-input" form="bulk_action" type="checkbox" name="contact_ids[]" value="{{ $contact->id }}" id="contact{{ $contact->id  }}">
+                                    <input class="form-check-input" form="bulk_action" type="checkbox" name="contact_ids[]" value="{{ $contact->id }}" id="contact{{ $contact->id}}">
 {{--                                    <img src="{{ asset("storage/photo/".$contact->photo) }}" class="user-img rounded-circle" alt="">--}}
                                     <label class="form-check-label" for="contact{{ $contact->id  }}">
                                         <div class="">
@@ -58,9 +62,9 @@
                                 <a href="{{ route('contact.edit',$contact->id) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="fa-solid fa-fw fa-pencil-alt"></i>
                                 </a>
-                                <button class="btn btn-sm btn-outline-primary">
+                                <a href="{{ route('contact.delete',$contact->id) }}" class="btn btn-sm btn-outline-primary">
                                     <i class="fa-solid fa-fw fa-trash-alt"></i>
-                                </button>
+                                </a>
                             </div>
                         </li>
                     @empty
@@ -110,15 +114,33 @@
             </div>
             <div class="modal-footer">
                 <button type="button" onclick="cancelAction()"  class="btn btn-secondary">{{__('close')}}</button>
-                <button type="submit" form="bulk_action" class="btn btn-primary">
+                <button type="submit" form="bulk_action"  class="btn btn-primary">
                     <i class="fa-solid fa-paper-plane"></i> {{__('share')}}
                 </button>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">{{__('delete contact')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" onclick="cancelAction()"  class="btn btn-secondary">{{__('close')}}</button>
+                <button type="submit" form="bulk_action"  class="btn btn-outline-danger">
+                     {{__('delete contact')}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
 
 @push("js")
     <script>
@@ -137,19 +159,13 @@
                 myEmailModal.show();
             }
         })
-
         function cancelAction(){
             contactBulkFunctionalitySelect.value = "";
             myEmailModal.hide();
         }
     </script>
-{{--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js">--}}
-{{--        $("#checkAll").click(function () {--}}
-{{--            $('input:checkbox').not(this).prop('checked', this.checked);--}}
-{{--        });--}}
-{{--    </script>--}}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js">
+    <script>
         $(function(e){
             $("#checkAll").click(function (){
                 $(".form-check-input").prop('checked',$(this).prop('checked'));

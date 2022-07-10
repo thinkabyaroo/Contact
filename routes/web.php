@@ -29,6 +29,14 @@ Route::middleware("auth")->group(function (){
     Route::resource("/contact",ContactController::class);
     Route::resource("/share-contact",ShareContactController::class);
 
+    Route::get("/contact/delete/{id}",[ContactController::class,'delete'])->name("contact.delete");
+    Route::delete('contact/forceDelete/{id}',[ContactController::class,'forceDelete'])->name('contact.forceDelete');
+    Route::get('contact/restore/{id}',[ContactController::class,'restore'])->name('contact.restore');
+
+    Route::get('/trash',[HomeController::class,'trash'])->name('trash');
+    Route::delete('/deleteAll',[HomeController::class,'deleteAll'])->name('deleteAll');
+
+
     Route::post("/contact-bulk-action",[ContactController::class,'bulkAction'])->name("contact.bulkAction");
     Route::post("/contact-bulk-share",[ContactController::class,'bulkShare'])->name("contact.bulkShare");
 
