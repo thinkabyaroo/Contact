@@ -67,21 +67,32 @@
 
                                 <div class="dropdown-menu dropdown-menu-end noti-menu" aria-labelledby="navbarDropdown">
                                     <ul class="list-group list">
-                                        @forelse(auth()->user()->Notifications as $notification)
+{{--                                        <div>--}}
+{{--                                            @foreach(auth()->user()->Notifications as $n)--}}
+{{--                                                    {{$n->data['message']}}--}}
+{{--                                                <br>--}}
+{{--                                                {{$n->data['title']}}--}}
+{{--                                                <br>--}}
+{{--                                                {{$n->data['url']}}--}}
+
+{{--                                                {{var_dump($n->data) }}--}}
+{{--                                                <hr>--}}
+{{--                                            @endforeach--}}
+{{--                                        </div>--}}
+
+                                        @forelse(auth()->user()->Notifications as $n)
                                             <li class="list-group-item border-0">
-                                                <a href="{{$notification->data['url']}}"  class="{{ $notification->read_at !=  null ? 'text-black-50' : 'text-black' }} text-decoration-none d-flex justify-content-start align-items-center">
-                                                    {{--                                                <input type="text" name="notificationId" value="{{$notification->id}}">--}}
-                                                    @if($notification->read_at == null)
+                                                <a href="{{$n->data['url']}}"  class="{{ $n->read_at !=  null ? 'text-black-50' : 'text-black' }} text-decoration-none d-flex justify-content-start align-items-center">
+                                                    @if($n->read_at == null)
                                                         <div class="bg-primary rounded-circle p-1 me-3" style="width: 10px;height: 10px;"></div>
                                                     @else
                                                         <div class="bg-light rounded-circle p-1 me-3" style="width: 10px;height: 10px;"></div>
                                                     @endif
                                                     <div class="">
                                                         <strong>
-                                                            {{$notification->data['message']}}
-
+                                                            {{$n->data['message']}}
                                                         </strong>
-                                                        {{strtolower($notification->data['title'])}}
+                                                        {{strtolower($n->data['title'])}}
                                                     </div>
 
                                                 </a>

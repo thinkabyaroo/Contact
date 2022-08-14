@@ -34,11 +34,12 @@ Route::middleware("auth")->group(function (){
     Route::get('contact/restore/{id}',[ContactController::class,'restore'])->name('contact.restore');
 
     Route::get('/trash',[HomeController::class,'trash'])->name('trash');
-    Route::delete('/deleteAll',[HomeController::class,'deleteAll'])->name('deleteAll');
-
+    Route::delete('/trash-bulk-action',[HomeController::class,'trashBulkAction'])->name('trashBulkAction');
 
     Route::post("/contact-bulk-action",[ContactController::class,'bulkAction'])->name("contact.bulkAction");
     Route::post("/contact-bulk-share",[ContactController::class,'bulkShare'])->name("contact.bulkShare");
+    Route::post("/contact-share",[ContactController::class,'contactShare'])->name("contact.contactShare");
+
 
     Route::get("/language/{locale}",[\App\Http\Controllers\LanguageController::class,'change'])->name('language.change');
 });

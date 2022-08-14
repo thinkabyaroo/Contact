@@ -1,8 +1,8 @@
 @extends('layouts.app')
 @section('content')
     <div class="container">
-        <div class="row my-5">
-            <div class="col">
+        <div class="row ">
+            <div class="col-12 col-md-8">
                 <h1>Contact</h1>
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb">
@@ -27,27 +27,42 @@
 
                             <div class="col-2 d-flex align-items-center justify-content-end">
                                 <a  href="{{route('contact.create')}}" class="btn btn-sm me-2 btn-outline-primary">Create</a>
-                                <form action="{{route("deleteAll")}}" id="checkForm" method="post">
+                                <form action="{{route("trashBulkAction")}}" id="trash_bulk_action" method="post">
                                     @method("delete")
                                     @csrf
-                                    <button type="submit" class="btn btn-sm me-2 btn-outline-dark">Delete All</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="">
+                <ul class="list-group">
 
-                </div>
-                @foreach($contacts as $contact)
-                    <div class="card mb-2 border shadow">
-                        <div class="row  align-items-center p-2 g-0">
+                    @forelse($contacts as $contact)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div class="form-check d-flex justify-content-between align-items-center">
 
-                            <div class="col-2 text-center">
-                                <input class="form-check-input" name="contact_ids[]" type="checkbox" form="checkForm" value="{{$contact->id}}">
-                            </div>
-                            <div class="col-4">
-                                <p class="fw-bold p-0 m-0">{{$contact->name}}</p>
+                                <input class="form-check-input" form="trash_bulk_action" type="checkbox" name="contact_ids[]" value="{{ $contact->id }}" id="contact{{ $contact->id}}">
+                                <label class="form-check-label" for="contact{{ $contact->id  }}">
+
+                                    <div class=" d-flex justify-content-between ms-3 align-items-center">
+                                        <div id="pf-small-img" class="border border-1 rounded-circle me-2" >
+                                            @if($contact->photo)
+                                                <img src="{{ asset('storage/photo/'.$contact->photo) }}"  alt='{{$contact->photo}}' class="" alt="">
+                                            @elseif($contact->photo==null)
+                                                <img src="{{asset('photo/default.png')}}" class="" alt="">
+                                            @endif
+                                        </div>
+                                        <div class="text-start">
+                                            <p class="fw-bold mb-0">
+                                                {{ $contact->name }}
+                                            </p>
+                                            <p class="text-black-50 mb-0">
+                                                {{ $contact->phone }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                </label>
                             </div>
                             <div class="col-6 text-end p-1 d-flex justify-content-end">
                                 <form action="{{route('contact.forceDelete',$contact->id)}}" method="post" class="d-inline-block">
@@ -59,22 +74,23 @@
                                 </form>
                                 <a href="{{route('contact.restore',$contact->id)}}" class="btn btn-sm me-2 btn-success">Restore</a>
                             </div>
-                        </div>
+                        </li>
+                    @empty
+                    @endforelse
+                </ul>
 
-
-                    </div>
-                @endforeach
             </div>
             <div class="d-flex justify-content-between align-items-center my-2">
+
                 <div class="">
                     <div class="d-flex">
-                        <select class="form-select me-2" form="checkForm" name="functionality" required>
+                        <select class="form-select me-2" form="trash_bulk_action" name="functionality" required>
                             <option value="">Select Action</option>
                             <option value="1">ReStore</option>
                             <option value="2">Force Delete</option>
                         </select>
                         <div class="">
-                            <button class="btn btn-outline-primary" form="checkForm" >Submit</button>
+                            <button class="btn btn-outline-primary" form="trash_bulk_action" >Submit</button>
                         </div>
                     </div>
                 </div>

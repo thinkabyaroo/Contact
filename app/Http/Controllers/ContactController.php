@@ -25,6 +25,7 @@ class ContactController extends Controller
         $contacts=Contact::where("user_id",Auth::id())->when(\request('search'), function ($q, $key) {
             $q->where('name','LIKE',"%$key%" );
         })->latest('id')->paginate(7)->withQueryString();
+//        return $contacts;
         return view('contact.index',compact('contacts'));
     }
 
@@ -179,5 +180,22 @@ class ContactController extends Controller
             return  abort(403);
         }
         return redirect()->back();
+    }
+    public function contactShare(Request $request){
+//        return $request;
+        $receiver = User::whereIn("email",$request->email)->first();
+        $shareContact=new ShareContact();
+        $shareContact->from=Auth::id();
+        $shareContact->to=$receiver->id;
+//        $shareContact->contact_ids=$request->contact_ids;
+        $shareContact->contact_ids=json_encode($request->contact_ids);
+        if ($request->contact_id){
+            $shareContact->contact_ids= json_encode($request->contact_id);
+        }
+        $shareContact->message=$request->message;
+        $shareContact->save();
+//            return $shareContact->contact_id;
+        $receiver->notify(new ContactShareNoti($request->message,route('share-contact.show',$shareContact->id)));
+        return redirect()->back()->with('status',"Contact share Success to $receiver->name");
     }
 }

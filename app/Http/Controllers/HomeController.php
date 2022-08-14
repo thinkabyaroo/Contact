@@ -32,7 +32,8 @@ class HomeController extends Controller
         return view('trash',compact('contacts'));
     }
 
-    public function deleteAll(Request $request){
+    public function trashBulkAction(Request $request){
+//        return $request;
         if ($request->functionality == 1){
             $contacts=Contact::onlyTrashed()->whereIn("id",$request->contact_ids)->get();
             foreach ($contacts as $contact){

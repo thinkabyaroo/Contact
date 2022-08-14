@@ -50,7 +50,7 @@ class ShareContactController extends Controller
      */
     public function show(ShareContact $shareContact)
     {
-        if ($shareContact->status){
+        if ($shareContact->status == "cancel"){
             return abort(404);
         }
         $from=User::find($shareContact->from);
@@ -58,7 +58,7 @@ class ShareContactController extends Controller
         $contacts=Contact::whereIn("id",json_decode($shareContact->contact_ids))->get();
         Auth::user()->unreadNotifications()->update(['read_at' => now()]);
         return view('shareContact.show',compact('from','to','shareContact','contacts'));
-        return $shareContact;
+//        return $shareContact;
     }
 
     /**
@@ -81,13 +81,27 @@ class ShareContactController extends Controller
      */
     public function update(UpdateShareContactRequest $request, ShareContact $shareContact)
     {
-        if ($request->action === 'accept'){
-            Contact::whereIn("id",json_decode($shareContact->contact_ids))->update(["user_id"=>Auth::id()]);
+        //following comment code is cut code
+//        if ($request->action === 'accept'){
+//            Contact::whereIn("id",json_decode($shareContact->contact_ids))->update(["user_id"=>Auth::id()]);
+//        }
+//        $shareContact->status=$request->action;
+//        $shareContact->update();
+//        return redirect()->route('contact.index');
+
+        if ($request->action === "accept"){
+            $shareContact->status =$request->action;
+            $shareContact->update();
+            $contacts= Contact::whereIn('id',json_decode($shareContact->contact_ids))->get();
+            foreach ($contacts as $contact){
+                $shareContact=$contact->replicate();
+                $shareContact->user_id =Auth::id();
+                $result = $shareContact->save();
+            }
+            return redirect()->route('contact.index')->with('status','Some Contacts You '.$request->action);
         }
-        $shareContact->status=$request->action;
-        $shareContact->update();
-        return redirect()->route('contact.index');
     }
+
 
     /**
      * Remove the specified resource from storage.

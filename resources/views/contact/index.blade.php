@@ -3,7 +3,14 @@
 
 <div class="container">
     <div class="row">
-        <div class="col">
+        <div class="col-12 col-md-8 align-items-center">
+            <h1>Contact</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{route('contact.index')}}">Contact</a></li>
+                    <li class="breadcrumb-item active" aria-current="page" >Index</li>
+                </ol>
+            </nav>
             <div class="">
                 <div class="card shadow mb-2 p-2">
                     <div class="row justify-content-between ">
@@ -30,33 +37,44 @@
                 <form action="{{ route('contact.bulkAction') }}" id="bulk_action" method="post">
                     @csrf
                 </form>
-                <form action="{{route("deleteAll")}}" id="deleteAll" method="post">
-                    @method("delete")
-                    @csrf
-                </form>
+{{--                <form action="{{route("deleteAll")}}" id="deleteAll" method="post">--}}
+{{--                    @method("delete")--}}
+{{--                    @csrf--}}
+{{--                </form>--}}
                 <ul class="list-group">
 
                     @forelse($contacts as $contact)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div class="">
-                                <div class="form-check">
+                                <div class="form-check d-flex justify-content-between align-items-center">
                                     <input class="form-check-input" form="bulk_action" type="checkbox" name="contact_ids[]" value="{{ $contact->id }}" id="contact{{ $contact->id}}">
-{{--                                    <img src="{{ asset("storage/photo/".$contact->photo) }}" class="user-img rounded-circle" alt="">--}}
-                                    <label class="form-check-label" for="contact{{ $contact->id  }}">
-                                        <div class="">
-                                            <p class="fw-bold mb-0">
-                                                {{ $contact->name }}
-                                            </p>
-                                            <p class="text-black-50 mb-0">
-                                                {{ $contact->phone }}
-                                            </p>
+                                    <label class="form-check-label" for="contact{{ $contact->id }}">
+                                        <div class=" d-flex justify-content-between ms-3 align-items-center">
+                                            <div id="pf-small-img" class="border border-1 rounded-circle me-2" >
+                                                @if($contact->photo)
+                                                    <img src="{{ asset('storage/photo/'.$contact->photo) }}"  alt='{{$contact->photo}}' class="" alt="">
+                                                @elseif($contact->photo==null)
+                                                    <img src="{{asset('photo/default.png')}}" class="" alt="">
+                                                @endif
+                                            </div>
+                                            <div class="text-start">
+                                                <p class="fw-bold mb-0">
+                                                    {{ $contact->name }}
+                                                </p>
+                                                <p class="fw-bold mb-0">
+                                                    {{ $contact->id }}
+                                                </p>
+                                                <p class="text-black-50 mb-0">
+                                                    {{ $contact->phone }}
+                                                </p>
+                                            </div>
                                         </div>
+
                                     </label>
                                 </div>
 
-                            </div>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-primary">
+
+                                <button class="shareBtn btn btn-sm btn-outline-primary" id="contact_id{{$contact->id}}" data-bs-toggle="modal" data-bs-target="#email{{$contact->id}}">
                                     <i class="fa-solid fa-fw  fa-paper-plane"></i>
                                 </button>
                                 <a href="{{ route('contact.edit',$contact->id) }}" class="btn btn-sm btn-outline-primary">
@@ -122,23 +140,45 @@
     </div>
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModal" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">{{__('delete contact')}}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+@foreach($contacts as $contact)
+    <div class="modal fade" id="email{{$contact->id}}" tabindex="-1" aria-labelledby="emailLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="emailLabel">Receiver Email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{route('contact.contactShare',$contact->id)}}" id="contactShare" method="post">
+                        @csrf
+                        <input type="hidden" name="contact_id" value="{{$contact->id}}">
+                        <div class="">
+                            <p>{{$contact->id}}</p>
+                        </div>
+                        <div class="">
+                            <label class="form-label" for="">{{__('recipient email')}}</label>
+                            <input type="text" name="email[]" class="form-control">
+                        </div>
+                        <div class="">
+                            <label class="form-label" for="">{{__('message')}}</label>
+                            <textarea  name="message"class="form-control" id="" cols="30" rows="7"></textarea>
+                        </div>
+                        <button type="button" onclick="cancelAction()"  class="btn btn-secondary">Close</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-paper-plane"></i> Share
+                        </button>
+{{--                        <button type="submit" form="contactShare" class="btn btn-primary">--}}
+{{--                            <i class="fa-solid fa-paper-plane"></i> Share--}}
+{{--                        </button>--}}
+                    </form>
 
-            <div class="modal-footer">
-                <button type="button" onclick="cancelAction()"  class="btn btn-secondary">{{__('close')}}</button>
-                <button type="submit" form="bulk_action"  class="btn btn-outline-danger">
-                     {{__('delete contact')}}
-                </button>
+
+                </div>
+
             </div>
         </div>
     </div>
-</div>
+@endforeach
 
 @endsection
 
@@ -149,8 +189,10 @@
         let myEmailModal =new bootstrap.Modal(emailModal,{
             backdrop:"static"
         });
-
         let contactBulkFunctionalitySelect = document.querySelector(`[name="functionality"]`);
+        let shareBtn = document.querySelector('.shareBtn');
+        console.log(shareBtn)
+
         contactBulkFunctionalitySelect.addEventListener("change",function (){
             let selected = Number(this.value);
             console.log(selected);
